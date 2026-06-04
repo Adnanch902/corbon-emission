@@ -1,0 +1,40 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: glip-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:7
+    container_name: glip-redis
+    ports:
+      - "6379:6379"
+
+  api:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    container_name: glip-api
+    env_file:
+      - ./services/api/.env.example
+    ports:
+      - "4000:4000"
+    depends_on:
+      - mongo
+      - redis
+
+  ml-service:
+    build:
+      context: ./services/ml-service
+      dockerfile: Dockerfile
+    container_name: glip-ml-service
+    env_file:
+      - ./services/ml-service/.env.example
+    ports:
+      - "8000:8000"
+
+volumes:
+  mongo_data:
